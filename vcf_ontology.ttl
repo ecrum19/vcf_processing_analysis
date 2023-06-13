@@ -1,0 +1,27 @@
+@prefix vcf: </Users/eliascrum/Programs/PythonProjects/vcf_ontology.ttl/vcf/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+vcf:ID rdf:type rdfs:Class ;
+    rdfs:label "Variant Call Format" ;
+    rdfs:comment "a VCF file contains SNP and genomic variant data for a specific sample" .
+
+vcf:ID rdf:type rdfs:Class ;
+    rdfs:label "SNP ID" ;
+    rdfs:comment "This is the unique identifier of a SNP within the sample" .
+
+vcf:Info rdf:type rdfs:Class ;
+    rdfs:label "Information" ;
+    rdfs:comment "This class contains specific information properties for individual SNPs" .
+
+vcf:Location rdf:type rdfs:Property ;
+    rdfs:label "SNP Location" ;
+    rdfs:comment "The nucleotide position at which a SNP is identified" .
+
+vcf:Reference rdf:type rdfs:Property ;
+    rdfs:label "Reference Nucleotide" ;
+    rdfs:comment "The nucleotide present at the SNP position in the reference genome (WT allele)" .
+
+vcf:Variant rdf:type rdfs:Property ;
+    rdfs:label "Variant Nucleotide" ;
+    rdfs:comment "The nucleotide present at the SNP position in the sample's genome (mutant allele)" .
