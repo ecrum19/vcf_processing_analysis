@@ -1,0 +1,15 @@
+This file is a guide for setting up a Python virtual environment to install the necessary dependencies
+
+1. Install Python3
+
+2. CMD: cd /Path/To/Directory
+3. CMD: git clone FINDGITURL
+4. CMD: python3 -m venv venv
+5. CMD: source ~/Path/To/venv/bin/activate
+
+6. CMD: pip install rdflib
+7. (Needed ONLY for windows) CMD: pip install wget
+
+
+
+1989.60s user 37.70s system 96% cpu 35:10.34 total
