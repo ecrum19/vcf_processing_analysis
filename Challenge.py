@@ -1,5 +1,6 @@
 import os
 import argparse
+import sys
 from pathlib import Path
 from rdflib import Graph, URIRef, Literal, Namespace
 
@@ -178,3 +179,6 @@ else:
     preprocess_vcf(sample)
     parse_to_rdf(sample)
     snp_query(query)
+
+
+print(sys.platform)
