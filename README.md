@@ -29,5 +29,4 @@ $ python3 Challenge.py -t
 # Usage
 ```Bash
 $ python3 Challenge.py --sample sample_ID --query SNP_ID 
-
-
+```
