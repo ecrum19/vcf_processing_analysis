@@ -8,6 +8,7 @@ Easiest way to install is via command line:
 ```Bash
 $ cd /path/to/desired/directory
 $ git clone https://github.com/ecrum19/vcf_processing_analysis.git
+$ cd vcf_processing_analysis/
 ```
 
 Create a Virtual Environment:
