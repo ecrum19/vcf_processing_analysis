@@ -16,8 +16,8 @@ args = run.parse_args()
 
 sample = vars(args)['sample']
 query = vars(args)['query']
-test = vars(args)['test']
-
+test = True #vars(args)['test']
+sys_typ = sys.platform
 ''' 
 Python script for downloading the 'huF7A4DE' VFC file, converting VCF data to RDF format (with splitting for security),
 and retrieving 'rs762551 SNP' information via a local SPARQL query.
@@ -172,7 +172,7 @@ def snp_query(snp_id):
 
 
 # to personalize ontology
-fix_ontology('u_vcf_ontology.ttl')
+fix_ontology('s_vcf_ontology.ttl')
 
 # test case
 if test:
@@ -185,5 +185,3 @@ else:
     preprocess_vcf(sample)
     parse_to_rdf(sample)
     snp_query(query)
-
-
