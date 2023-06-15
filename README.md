@@ -2,7 +2,7 @@
 VCF file download, parsing, and SNP analysis
 
 
-I## Instillation
+## Instillation
 Easiest way to install is via command line:
 
 ```Bash
