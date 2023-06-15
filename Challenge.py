@@ -1,11 +1,8 @@
-import os
-import argparse
-import sys
+import os, sys, argparse
 from pathlib import Path
 from rdflib import Graph, URIRef, Literal, Namespace
 
-
-working_directory = Path('/Users/eliascrum/Programs/PythonProjects')
+working_directory = Path(os.getcwd())
 
 run = argparse.ArgumentParser(description='Download, parse, and/or query VCF files.')
 run.add_argument('-s', '--sample', nargs='?', default='NB72462M',
@@ -17,22 +14,28 @@ run.add_argument('-t', '--test', action='store_true',
                  help='runs a quick test to ensure proper instillation')
 args = run.parse_args()
 
-# sample = vars(args)['sample']
-# query = vars(args)['query']
+sample = vars(args)['sample']
+query = vars(args)['query']
 test = True #vars(args)['test']
-sample = 'NB72462M'
-query = 'rs762551'
+sys_typ = sys.platform
 ''' 
 Python script for downloading the 'huF7A4DE' VFC file, converting VCF data to RDF format (with splitting for security),
 and retrieving 'rs762551 SNP' information via a local SPARQL query.
 
 Dependencies:
     Linux OS terminal (this script throws many errors in windows command prompt)
-    Argparse - Python Package
     RDFLib - Python Package
-    
-----
 '''
+
+def fix_ontology(filename):
+    starting_ont = open(working_directory / filename, "r").readlines()
+    better_ont = open('vcf_ontology.ttl', 'w')
+
+    first_prefix = "@prefix vcf: <{}> .".format(str(working_directory / "vcf_ontology.ttl" / "vcf" / '_')[:-1])
+
+    better_ont.write(first_prefix + '\n')
+    for line in starting_ont[1:]:
+        better_ont.write(line)
 
 
 def preprocess_vcf(reference_id):
@@ -62,7 +65,7 @@ def preprocess_vcf(reference_id):
 
 
 # basic ontology defined here (just the classes relevant for the challenge - vcf_ontology.ttl)
-prefix = Namespace(working_directory / "vcf_ontology.ttl" / "vcf" / "Info")
+prefix = Namespace(working_directory / "vcf_ontology.ttl" / "vcf" / "Info" / "_")[:-1]
 
 
 def parse_to_rdf(rid):
@@ -119,8 +122,8 @@ def parse_to_rdf(rid):
 
 
 # global prefix strings to make code look cleaner -- LINUX (need Windows version here) *****
-info_prefix = "file://{}".format(working_directory / "vcf_ontology.ttl" / "vcf" / "Info")
-id_prefix = "file://{}".format(working_directory / "vcf_ontology.ttl" / "vcf" / "ID") + '/'
+info_prefix = "file://{}".format(str(working_directory / "vcf_ontology.ttl" / "vcf" / "Info" / "_")[:1])
+id_prefix = "file://{}".format(str(working_directory / "vcf_ontology.ttl" / "vcf" / "ID" / "_")[:-1])
 
 
 
@@ -168,6 +171,9 @@ def snp_query(snp_id):
             break
 
 
+# to personalize ontology
+fix_ontology('s_vcf_ontology.ttl')
+
 # test case
 if test:
     print("You selected to run the test version. If there are any errors they will be displayed below.")
@@ -181,4 +187,3 @@ else:
     snp_query(query)
 
 
-print(sys.platform)
