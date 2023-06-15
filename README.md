@@ -1,4 +1,4 @@
-## vcf_processing_analysis
+# vcf_processing_analysis
 VCF file download, parsing, and SNP analysis. Works with OS X and Linux operating systems.
 
 
@@ -26,7 +26,7 @@ Run a test to ensure dependencies are installed:
 $ python3 Challenge.py -t
 ```
 
-# Usage
+## Usage
 ```Bash
 $ python3 Challenge.py --sample sample_ID --query SNP_ID 
 ```
