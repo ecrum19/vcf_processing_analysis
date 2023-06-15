@@ -7,7 +7,7 @@ Easiest way to install is via command line:
 
 ```Bash
 $ cd /path/to/desired/directory
-$ git clone _____
+$ git clone https://github.com/ecrum19/vcf_processing_analysis.git
 ```
 
 Install dependencies:
