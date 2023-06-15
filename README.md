@@ -14,7 +14,7 @@ $ cd vcf_processing_analysis/
 Create a Virtual Environment:
 ```Bash
 $ python3 -m venv venv
-$ python3 source ~/path/to/vcf_processing_analysis/venv/bin/activate
+$ source ~/path/to/vcf_processing_analysis/venv/bin/activate
 ```
 
 Install dependencies:
