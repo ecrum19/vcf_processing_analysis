@@ -10,6 +10,12 @@ $ cd /path/to/desired/directory
 $ git clone https://github.com/ecrum19/vcf_processing_analysis.git
 ```
 
+Create a Virtual Environment:
+```Bash
+$ python3 -m venv venv
+$ python3 source ~/path/to/curr/dir/venv/bin/activate
+```
+
 Install dependencies:
 ```Bash
 $ pip install rdflib
@@ -19,4 +25,9 @@ Run a test to ensure dependencies are installed:
 ```Bash
 $ python3 Challenge.py -t
 ```
+
+# Usage
+```Bash
+$ python3 Challenge.py --sample sample_ID --query SNP_ID 
+
 
