@@ -1,5 +1,5 @@
 ## vcf_processing_analysis
-VCF file download, parsing, and SNP analysis
+VCF file download, parsing, and SNP analysis. Works with OS X and Linux operating systems.
 
 
 ## Installation
