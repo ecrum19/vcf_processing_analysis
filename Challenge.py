@@ -16,8 +16,8 @@ args = run.parse_args()
 
 sample = vars(args)['sample']
 query = vars(args)['query']
-test = True #vars(args)['test']
-sys_typ = sys.platform
+test = vars(args)['test']
+
 ''' 
 Python script for downloading the 'huF7A4DE' VFC file, converting VCF data to RDF format (with splitting for security),
 and retrieving 'rs762551 SNP' information via a local SPARQL query.
@@ -28,6 +28,14 @@ Dependencies:
 '''
 
 def fix_ontology(filename):
+    """Alters ontology document to reflect current memory location.
+
+        Args:
+            input file name (included in github repo)
+
+        Returns:
+            A personalized ontology file
+        """
     starting_ont = open(working_directory / filename, "r").readlines()
     better_ont = open('vcf_ontology.ttl', 'w')
 
@@ -64,10 +72,6 @@ def preprocess_vcf(reference_id):
     print("\n\n\tPreprocessing completed. Continuing to parsing and RDF conversion.")
 
 
-# basic ontology defined here (just the classes relevant for the challenge - vcf_ontology.ttl)
-prefix = Namespace(working_directory / "vcf_ontology.ttl" / "vcf" / "Info" / "_")[:-1]
-
-
 def parse_to_rdf(rid):
     """Parses VCF file into RDF triples and stores them in different places based on chromosome. Works by
         iterating over each line of an input sample VCF file. Each line contains data for 1 SNP.
@@ -81,6 +85,8 @@ def parse_to_rdf(rid):
         Returns:
             VCF sample information in n# of RDF.ttl files (where n = number of chromosomes in VCF file)
     """
+    # basic ontology defined here (just the classes relevant for the challenge - vcf_ontology.ttl)
+    prefix = Namespace(str(working_directory / "vcf_ontology.ttl" / "vcf" / "Info" / "_")[:-1])
     in_data = open(working_directory / (rid + '.vcf'), "r").readlines()     # read in vcf data (in chunks maybe?)
     ontology_desc = []
     o = 0
@@ -121,12 +127,6 @@ def parse_to_rdf(rid):
     print("\n\tVCF to RDF Conversion completed. Now beginning SNP information query process.\n")
 
 
-# global prefix strings to make code look cleaner -- LINUX (need Windows version here) *****
-info_prefix = "file://{}".format(str(working_directory / "vcf_ontology.ttl" / "vcf" / "Info" / "_")[:1])
-id_prefix = "file://{}".format(str(working_directory / "vcf_ontology.ttl" / "vcf" / "ID" / "_")[:-1])
-
-
-
 def snp_query(snp_id):
     """Parses VCF file into RDF triples and stores them in different places based on chromosome. Works by
         iterating over each line of an input sample VCF file. Each line contains data for 1 SNP.
@@ -140,6 +140,9 @@ def snp_query(snp_id):
         Returns:
             SNP_Information.txt file that contains the Variant allele information from designated SNP
     """
+    # global prefix strings to make code look cleaner -- LINUX (need Windows version here) *****
+    info_prefix = "file://{}".format(str(working_directory / "vcf_ontology.ttl" / "vcf" / "Info" / "_")[:-1])
+    id_prefix = "file://{}".format(str(working_directory / "vcf_ontology.ttl" / "vcf" / "ID" / "_")[:-1])
 
     # SPARQL Query to retrieve designated SNP variant allele nucleotide
     q = """
@@ -161,7 +164,7 @@ def snp_query(snp_id):
         for row in hits:
             for r in row:
                 if r is not None:
-                    output.write('The SNP %s is found on %s and contains the variant "%s" allele'
+                    output.write('The SNP %s is found on %s and exhibits the variant "%s" allele'
                                  % (snp_id, kg[:-4], str(r)))
                     done = True
                     break
@@ -172,7 +175,9 @@ def snp_query(snp_id):
 
 
 # to personalize ontology
-fix_ontology('s_vcf_ontology.ttl')
+fix_ontology('u_vcf_ontology.ttl')
+if 'RDF_data' not in os.listdir(working_directory):
+    os.mkdir(str(working_directory / 'RDF_data'))
 
 # test case
 if test:
@@ -185,3 +190,5 @@ else:
     preprocess_vcf(sample)
     parse_to_rdf(sample)
     snp_query(query)
+
+
