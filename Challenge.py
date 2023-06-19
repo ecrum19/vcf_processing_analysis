@@ -90,8 +90,8 @@ def parse_to_rdf(rid):
     prefix = Namespace(str(working_directory / "vcf_ontology.ttl" / "vcf" / "Info" / "_")[:-1])
     in_data = open(working_directory / (rid + '.vcf'), "r").readlines()     # read in vcf data
     o = 0
+    # for skipping over the ## lines of the vcf file (unimportant for current challenge)
     while in_data[o][0:2] == "##":
-        ontology_desc.append(in_data[o])      # for skipping over the ## lines of the vcf file (unimportant for current challenge)
         o += 1
 
     prev_chr = 'chr1'       # for dynamic programming and memory efficiency
