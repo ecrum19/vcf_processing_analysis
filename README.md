@@ -31,7 +31,7 @@ $ python3 Challenge.py -t
 ```Bash
 $ python3 Challenge.py --sample sample_ID --query SNP_ID 
 
-# The commands below are equuivalent for this challenge becase the script will default to using:
+# The commands below are equivalent for this challenge because the script will default to using:
 # sample huF7A4DE's vcf file (--sample NB72462M.vcf) and SNP ID rs762551 (--query rs762551)
 $ python3 Challenge.py
 $ python3 Challenge.py -s NB72462M -q rs762551
