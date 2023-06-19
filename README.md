@@ -36,4 +36,4 @@ $ python3 Challenge.py --sample sample_ID --query SNP_ID
 $ python3 Challenge.py
 $ python3 Challenge.py -s NB72462M -q rs762551
 ```
-Note that this script can unzip and process any *.vcf.gz file but is only designed to fetch files from https://my.pgp-hms.org/public_genetic_data/ . Please make sure to specify the file name present in FILENAME.vcf.gz within the --sample field for proper fetching and unzipping -- NOT the participant ID.
+Note that this script can unzip and process any *.vcf.gz file but is only designed to fetch files from https://my.pgp-hms.org/public_genetic_data/. Please make sure to specify the file name present in FILENAME.vcf.gz within the --sample field for proper fetching and unzipping -- NOT the participant ID.
