@@ -1,9 +1,18 @@
-import os, sys, argparse
+import os, argparse
 from pathlib import Path
 from rdflib import Graph, URIRef, Literal, Namespace
-
 working_directory = Path(os.getcwd())
 
+''' 
+Python script for downloading the 'huF7A4DE' VFC file, converting VCF data to RDF format (with splitting for decentralization),
+and retrieving 'rs762551 SNP' information via a local SPARQL query.
+
+Dependencies:
+    Linux OS terminal (this script throws multiple errors in windows command prompt)
+    RDFLib - Python Package
+'''
+
+# Commandline functionality
 run = argparse.ArgumentParser(description='Download, parse, and/or query VCF files.')
 run.add_argument('-s', '--sample', nargs='?', default='NB72462M',
                  help='-d flag specifies a Personal Genome Project sample ID you would like to download ' +
@@ -18,14 +27,7 @@ sample = vars(args)['sample']
 query = vars(args)['query']
 test = vars(args)['test']
 
-''' 
-Python script for downloading the 'huF7A4DE' VFC file, converting VCF data to RDF format (with splitting for security),
-and retrieving 'rs762551 SNP' information via a local SPARQL query.
 
-Dependencies:
-    Linux OS terminal (this script throws many errors in windows command prompt)
-    RDFLib - Python Package
-'''
 
 def fix_ontology(filename):
     """Alters ontology document to reflect current memory location.
@@ -57,15 +59,15 @@ def preprocess_vcf(reference_id):
     """
 
     curr_files = os.listdir(working_directory)
+    # Downloads .vcf file if not already in working directory
     if (reference_id+'.vcf' or reference_id+'.vcf.gz') not in curr_files:
         os.system(
             "wget --mirror --no-parent --no-host --cut-dirs=1 " +
             "https://531155966bc06bca5de62439c00ce64b-282.collections.ac2it.arvadosapi.com/_/" +
             "{}".format(reference_id+'.vcf.gz')
         )
-        # Linux systems
         os.system("gunzip {}".format(reference_id+'.vcf.gz'))
-
+    # unzips .vcf file if it is in current directory but not unzipped
     elif reference_id+'.vcf.gz' in curr_files:
         os.system("gunzip {}".format(reference_id+'.vcf.gz'))
 
@@ -76,8 +78,7 @@ def parse_to_rdf(rid):
     """Parses VCF file into RDF triples and stores them in different places based on chromosome. Works by
         iterating over each line of an input sample VCF file. Each line contains data for 1 SNP.
         Only nucleotide location (Location), Reference nucleotide (Reference), and Variant nucleotide (Variant) were
-        added to RDF data stores (more semantic info could be added but for this challenge it was the only information
-        I thought was important.
+        added to RDF data stores (more semantic info could be added, but for this challenge it was unnecessary).
 
         Args:
             Sample VCF file ID
@@ -85,13 +86,12 @@ def parse_to_rdf(rid):
         Returns:
             VCF sample information in n# of RDF.ttl files (where n = number of chromosomes in VCF file)
     """
-    # basic ontology defined here (just the classes relevant for the challenge - vcf_ontology.ttl)
+    # basic ontology defined here (just the classes relevant for the challenge - see vcf_ontology.ttl)
     prefix = Namespace(str(working_directory / "vcf_ontology.ttl" / "vcf" / "Info" / "_")[:-1])
-    in_data = open(working_directory / (rid + '.vcf'), "r").readlines()     # read in vcf data (in chunks maybe?)
-    ontology_desc = []
+    in_data = open(working_directory / (rid + '.vcf'), "r").readlines()     # read in vcf data
     o = 0
     while in_data[o][0:2] == "##":
-        ontology_desc.append(in_data[o])      # for the descriptions of ontology classes ?? Add to ontology doc ??
+        ontology_desc.append(in_data[o])      # for skipping over the ## lines of the vcf file (unimportant for current challenge)
         o += 1
 
     prev_chr = 'chr1'       # for dynamic programming and memory efficiency
@@ -102,10 +102,10 @@ def parse_to_rdf(rid):
     for i in in_data[o+1:]:
         curr_variant = i.split('\t')
 
-        # because we are only working with known SNPs for this challenge (so ignoring those without SNP IDs)
+        # because we are only working with known SNPs for this challenge, this statement excludes those without SNP IDs
         if curr_variant[2] != '.':
 
-            # split data by chromosome for decentralization
+            # split data by chromosome for decentralization when chromosome number changes
             if curr_variant[0] != prev_chr:
                 g.serialize(destination=working_directory / "RDF_Data" / "{}.ttl".format(str(curr_chromosome)))
                 g = Graph()
@@ -117,30 +117,27 @@ def parse_to_rdf(rid):
             g.add((c_id, prefix.Reference, Literal(curr_variant[3])))  # ==> reference base
             g.add((c_id, prefix.Variant, Literal(curr_variant[4])))  # ==> variant base
 
-            # for the last SNP in the VCF file
+            # for the last SNP in the VCF file (when the chromosome number does not change)
             if i == in_data[-1]:
                 g.serialize(destination=working_directory / "RDF_Data" / "{}.ttl".format(str(curr_chromosome)))
 
-            # tracks current chromosome
+            # tracks current chromosome for data separation
             prev_chr = curr_variant[0]
 
     print("\n\tVCF to RDF Conversion completed. Now beginning SNP information query process.\n")
 
 
 def snp_query(snp_id):
-    """Parses VCF file into RDF triples and stores them in different places based on chromosome. Works by
-        iterating over each line of an input sample VCF file. Each line contains data for 1 SNP.
-        Only nucleotide location (Location), Reference nucleotide (Reference), and Variant nucleotide (Variant) were
-        added to RDF data stores (more semantic info could be added but for this challenge it was the only information
-        I thought was important.
+    """Searches parsed SNP RDF Triples via SPARQL for one specific SNP by its SNP ID. Process is iterative over the 
+        number of chromosome .ttl files produced by the previous parse_to_rdf() method (should be 1-22, X, and potentially Y for human data).
 
         Args:
             Desired ID of SNP of interest
 
         Returns:
-            SNP_Information.txt file that contains the Variant allele information from designated SNP
+            SNP_Information.txt file that contains the Variant allele information for designated SNP
     """
-    # global prefix strings to make code look cleaner -- LINUX (need Windows version here) *****
+    # prefix variables to clean-up SPARQL query
     info_prefix = "file://{}".format(str(working_directory / "vcf_ontology.ttl" / "vcf" / "Info" / "_")[:-1])
     id_prefix = "file://{}".format(str(working_directory / "vcf_ontology.ttl" / "vcf" / "ID" / "_")[:-1])
 
@@ -148,33 +145,39 @@ def snp_query(snp_id):
     q = """
     PREFIX inf: <%s>
     PREFIX id: <%s>
-    SELECT ?p ?o
+    SELECT ?o
     WHERE {
         id:%s inf:Variant ?o .
     }""" % (info_prefix, id_prefix, snp_id)
 
-    # perform SPARQL query on each chromosome's RDF graph until we get the result
+    # perform SPARQL query on each chromosome's RDF graph until we get the result, break out of loop when result is found (SNP IDs are unique)
     done = False
+    output = open(working_directory / 'SNP_Information.txt', 'w')
+    # outer loop for chromosome_N.ttl files
     for kg in os.listdir(working_directory / 'RDF_Data'):
         g2 = Graph()
         g2.parse(working_directory / "RDF_Data" / kg)
 
+        # actual SPARQL search of chromosome RDF Triples
         hits = g2.query(q)
-        output = open(working_directory / 'SNP_Information.txt', 'w')
+      
+        # for the case that the SNP is found (the object returned by REFLib is a bit complex to extract literal data from)
         for row in hits:
             for r in row:
                 if r is not None:
                     output.write('The SNP %s is found on %s and exhibits the variant "%s" allele'
                                  % (snp_id, kg[:-4], str(r)))
+                    # SNP found, now break out of parent loops
                     done = True
                     break
         if done:
             output.close()
             print('\nSuccess! The SNP information you are looking for can be found in the "SNP_Information.txt" file.\n')
+            # end iterating over chromosomeN.ttl files because the SNP has been found
             break
 
 
-# to personalize ontology
+# to personalize ontology and ensure there are no file path errors
 fix_ontology('u_vcf_ontology.ttl')
 if 'RDF_data' not in os.listdir(working_directory):
     os.mkdir(str(working_directory / 'RDF_data'))
@@ -186,6 +189,7 @@ if test:
     parse_to_rdf('test')
     snp_query('rs62637819')
 
+# Challenge case
 else:
     preprocess_vcf(sample)
     parse_to_rdf(sample)
